@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Grievance Management Portal — Aditya University</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #080808;
+    --bg-strong: #0b0b0b;
+    --surface: #111111;
+    --surface-2: #171717;
+    --surface-3: #1d1d1d;
+    --surface-soft: rgba(255,255,255,0.02);
+    --foreground: #ffffff;
+    --foreground-soft: #a3a3a3;
+    --foreground-muted: #737373;
+    --border: rgba(255,255,255,0.08);
+    --brand: #ff6b00;
+    --brand-strong: #ff7a1a;
+    --brand-soft: rgba(255,107,0,0.12);
+    --brand-contrast: #110d09;
+    --success: #3bc98d;
+    --warning: #ffb347;
+    --danger: #ff7b6b;
+    --shadow: 0 18px 50px rgba(0,0,0,0.34);
+    --shadow-soft: 0 8px 18px rgba(0,0,0,0.18);
+    --radius-xl: 26px;
+    --radius-lg: 18px;
+    --radius-md: 14px;
+    --radius-sm: 12px;
+    --transition: 220ms ease;
+  }
+
+  body.light-theme {
+    --bg: #f7f7f5;
+    --bg-strong: #f2f2ef;
+    --surface: #ffffff;
+    --surface-2: #f2f2ef;
+    --surface-3: #ffffff;
+    --surface-soft: rgba(0,0,0,0.02);
+    --foreground: #111111;
+    --foreground-soft: #666666;
+    --foreground-muted: #999999;
+    --border: #e6e6e3;
+    --brand: #ff6b00;
+    --brand-strong: #e85d04;
+    --brand-soft: rgba(255,107,0,0.10);
+    --brand-contrast: #14110e;
+    --success: #1b8a60;
+    --warning: #c77800;
+    --danger: #d74d3d;
+    --shadow: 0 14px 34px rgba(17, 17, 17, 0.08);
+    --shadow-soft: 0 8px 18px rgba(17,17,17,0.04);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(255,107,0,0.10), transparent 28%),
+      radial-gradient(circle at 80% 18%, rgba(255,122,26,0.08), transparent 24%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-strong) 100%);
+    color: var(--foreground);
+    overflow-x: hidden;
+    min-height: 100vh;
+    position: relative;
+    letter-spacing: -0.01em;
+    transition: background var(--transition), color var(--transition);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
+    pointer-events: none;
+  }
+
+  body.light-theme::before {
+    background-image:
+      linear-gradient(rgba(0,0,0,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.015) 1px, transparent 1px);
+  }
+
+  .aurora {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    opacity: 0.75;
+  }
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(72px); animation: float 22s ease-in-out infinite alternate;
+    opacity: 0.28; mix-blend-mode: multiply;
+  }
+  .b1 { width: 520px; height: 520px; background: rgba(255,107,0,0.35); left: -120px; top: -80px; }
+  .b2 { width: 480px; height: 480px; background: rgba(255,122,26,0.22); right: -90px; top: 20%; animation-delay: -8s; }
+  .b3 { width: 440px; height: 440px; background: rgba(255,107,0,0.18); left: 42%; bottom: -100px; animation-delay: -14s; }
+  @keyframes float {
+    0% { transform: translate3d(0,0,0) scale(1); }
+    100% { transform: translate3d(30px,-22px,0) scale(1.08); }
+  }
+
+  .shell {
+    position: relative; z-index: 1; max-width: 1220px; margin: 0 auto;
+    padding: 28px 20px 54px;
+  }
+
+  header.top {
+    display: flex; align-items: center; gap: 16px; padding: 18px 20px;
+    border: 1px solid var(--border); background: rgba(17,17,17,0.82);
+    border-radius: 22px; box-shadow: var(--shadow-soft); backdrop-filter: blur(18px);
+    position: sticky; top: 18px; z-index: 20;
+    transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+  }
+  body.light-theme header.top {
+    background: rgba(255,255,255,0.8);
+  }
+  .logo {
+    width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+    background: linear-gradient(135deg, rgba(255,107,0,0.18), rgba(255,122,26,0.08));
+    border: 1px solid rgba(255,107,0,0.35);
+    color: var(--foreground); font-family: 'Sora'; font-weight: 800; font-size: 22px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 22px rgba(255,107,0,0.15);
+  }
+  .titles { min-width: 0; }
+  .titles h1 {
+    font-family: 'Sora'; font-size: clamp(1.1rem, 1.4vw, 1.65rem); margin: 0; font-weight: 700;
+    letter-spacing: -0.06em;
+  }
+  .titles p { margin: 4px 0 0; color: var(--foreground-soft); font-size: 12px; }
+
+  .status-wrap {
+    margin-left: auto; display: flex; align-items: center; gap: 10px;
+  }
+  .status {
+    display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px;
+    border-radius: 999px; border: 1px solid var(--border); background: var(--surface-soft);
+    color: var(--foreground-soft); font-size: 12px; font-weight: 600;
+  }
+  .theme-switch {
+    display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border);
+    background: var(--surface-soft); color: var(--foreground);
+    border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all var(--transition);
+  }
+  .theme-switch:hover { border-color: rgba(255,107,0,0.3); }
+  .theme-switch .icon { font-size: 13px; }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--warning); box-shadow: 0 0 0 0 rgba(255,179,71,0.45);
+  }
+  .dot.live { background: var(--success); animation: pulse 2.2s infinite; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(59,201,141,0.45); }
+    70% { box-shadow: 0 0 0 10px rgba(59,201,141,0); }
+    100% { box-shadow: 0 0 0 0 rgba(59,201,141,0); }
+  }
+
+  .tabs {
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: fit-content;
+    margin: 26px auto 24px; padding: 6px; border-radius: 18px;
+    background: rgba(17,17,17,0.9); border: 1px solid var(--border); box-shadow: var(--shadow-soft);
+    position: relative; transition: background var(--transition), border-color var(--transition);
+  }
+  body.light-theme .tabs { background: rgba(255,255,255,0.9); }
+  .tab {
+    position: relative; font-family: 'Sora'; font-weight: 600; font-size: 13px; color: var(--foreground-soft);
+    background: transparent; border: 0; padding: 11px 18px; border-radius: 12px; cursor: pointer;
+    transition: color var(--transition), transform var(--transition), background var(--transition);
+    min-width: 120px;
+  }
+  .tab:hover { color: var(--foreground); }
+  .tab.active {
+    color: var(--brand-contrast); background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 10px 18px rgba(255,107,0,0.18);
+  }
+
+  .view { display: none; animation: rise .4s ease; }
+  .view.active { display: block; }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px);} to { opacity: 1; transform: translateY(0);} }
+
+  .card {
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 26px; box-shadow: var(--shadow-soft);
+    position: relative; overflow: hidden; transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent, rgba(255,107,0,0.04), transparent);
+    transform: translateX(-120%); animation: sheen 7s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes sheen { 0%, 100% { transform: translateX(-120%); } 50% { transform: translateX(120%); } }
+
+  .card h2 {
+    font-family: 'Sora'; font-weight: 700; margin: 0 0 6px; font-size: clamp(1.4rem, 2vw, 2rem);
+    letter-spacing: -0.06em;
+  }
+  .card .sub {
+    color: var(--foreground-soft); font-size: 14px; margin: 0 0 22px; line-height: 1.6;
+  }
+
+  .submit-hero {
+    display: grid; grid-template-columns: 1.4fr 0.9fr; gap: 22px; margin-bottom: 18px;
+  }
+  .hero-copy { padding: 16px 0 2px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 999px;
+    color: var(--brand); background: var(--brand-soft); border: 1px solid rgba(255,107,0,0.18);
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .hero-copy h2 {
+    font-family: 'Sora'; font-size: clamp(2rem, 4vw, 3.2rem); margin: 0; line-height: 1.02; letter-spacing: -0.08em;
+  }
+  .hero-copy p {
+    color: var(--foreground-soft); line-height: 1.7; max-width: 620px; margin: 14px 0 0; font-size: 15px;
+  }
+  .journey {
+    display: grid; gap: 10px; padding: 16px; border-radius: 20px; border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  }
+  .journey-step {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--surface-soft);
+    border: 1px solid var(--border); color: var(--foreground-soft);
+  }
+  .journey-step .step-index {
+    width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700;
+    background: linear-gradient(135deg, rgba(255,107,0,0.18), rgba(255,122,26,0.10)); border: 1px solid rgba(255,107,0,0.25);
+    color: var(--foreground);
+  }
+  .journey-step strong { color: var(--foreground); font-weight: 600; }
+
+  .field { margin-bottom: 18px; }
+  label {
+    display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--foreground-soft);
+    margin-bottom: 8px; font-weight: 700;
+  }
+  input, textarea, .sel {
+    width: 100%; background: rgba(0,0,0,0.02); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px 15px; color: var(--foreground); font-family: 'Inter'; font-size: 14px;
+    transition: border var(--transition), box-shadow var(--transition), transform var(--transition), background var(--transition), color var(--transition);
+  }
+  body.light-theme input, body.light-theme textarea, body.light-theme .sel {
+    background: rgba(255,255,255,0.9);
+  }
+  input::placeholder, textarea::placeholder { color: var(--foreground-muted); }
+  input:focus, textarea:focus, .sel:focus {
+    outline: none; border-color: rgba(255,107,0,0.7);
+    box-shadow: 0 0 0 3px rgba(255,107,0,0.10);
+  }
+  textarea { resize: vertical; min-height: 150px; }
+  .meta-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+  .char-note { font-size: 12px; color: var(--foreground-soft); }
+  .btn {
+    font-family: 'Sora'; font-weight: 700; font-size: 14px; letter-spacing: -0.02em;
+    color: var(--brand-contrast); background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+    border: 0; border-radius: 14px; padding: 15px 20px; cursor: pointer; transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+    box-shadow: 0 16px 24px rgba(255,107,0,0.18);
+  }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.03); }
+  .btn:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+
+  .result-card {
+    margin-top: 20px; padding: 18px 20px; border-radius: 16px; border: 1px solid rgba(255,107,0,0.18);
+    background: rgba(255,107,0,0.06); display: none; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .result-card.show { display: block; animation: rise .35s ease; }
+  .result-card .rid { font-family: 'Sora'; font-weight: 700; font-size: 1.05rem; color: var(--brand); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .chip { font-size: 12px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--foreground-soft); }
+  .chip b { color: var(--foreground); }
+  .reason { font-size: 13px; color: var(--foreground-soft); line-height: 1.6; }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin: 0 0 22px;
+  }
+  .stat {
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--border); border-radius: 22px; padding: 20px 18px; position: relative; overflow: hidden;
+  }
+  .stat::after {
+    content: ""; position: absolute; inset: auto 0 0 0; height: 2px; background: linear-gradient(90deg, rgba(255,107,0,0.08), rgba(255,107,0,0.9), rgba(255,107,0,0.08));
+  }
+  .stat .n { font-family: 'Sora'; font-weight: 700; font-size: clamp(1.8rem, 2vw, 2.5rem); letter-spacing: -0.06em; }
+  .stat .l { margin-top: 8px; color: var(--foreground-soft); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 14px; align-items: center;
+  }
+  .toolbar input { max-width: 300px; }
+  .sel {
+    max-width: 200px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); color: var(--foreground);
+    font-size: 13px; padding: 12px 14px; border-radius: 12px;
+  }
+  body.light-theme .sel { background: rgba(255,255,255,0.88); }
+  .table-wrap {
+    overflow: hidden; border-radius: 18px; border: 1px solid var(--border);
+    background: var(--surface-soft);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 13px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th {
+    font-family: 'Sora'; font-weight: 600; font-size: 11px; color: var(--foreground-soft); text-transform: uppercase;
+    letter-spacing: 0.12em; background: rgba(255,255,255,0.02);
+  }
+  tbody tr { transition: background var(--transition), transform var(--transition); }
+  tbody tr:hover { background: rgba(255,107,0,0.04); }
+  .badge { display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 999px; padding: 6px 9px; }
+  .sev-Critical { background: rgba(255,123,107,0.12); color: var(--danger); }
+  .sev-High { background: rgba(255,107,0,0.12); color: var(--brand); }
+  .sev-Medium { background: rgba(163,163,163,0.12); color: var(--foreground-soft); }
+  .sev-Low { background: rgba(255,255,255,0.04); color: var(--foreground-muted); }
+  .st-Open { color: var(--danger); }
+  .st-InProgress { color: var(--warning); }
+  .st-Resolved { color: var(--success); }
+
+  .chat { display: flex; flex-direction: column; height: 560px; }
+  .messages {
+    flex: 1; overflow-y: auto; padding: 8px 4px; display: flex; flex-direction: column; gap: 14px;
+    scroll-behavior: smooth;
+  }
+  .msg {
+    max-width: 82%; padding: 14px 16px; border-radius: 18px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;
+    animation: rise .3s ease;
+  }
+  .msg.user {
+    align-self: flex-end; background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+    color: var(--brand-contrast); border-bottom-right-radius: 6px; font-weight: 600;
+  }
+  .msg.bot {
+    align-self: flex-start; background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--border); border-bottom-left-radius: 6px; color: var(--foreground);
+  }
+  .typing {
+    align-self: flex-start; display: flex; gap: 7px; padding: 14px 18px; border-radius: 18px;
+    border: 1px solid var(--border); background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+  }
+  .typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); animation: bounce 1.2s infinite; }
+  .typing span:nth-child(2){ animation-delay: .18s; } .typing span:nth-child(3){ animation-delay: .36s; }
+  @keyframes bounce { 0%,100% { transform: none; opacity: .4; } 35% { transform: translateY(-7px); opacity: 1; } }
+
+  .suggest { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 10px; }
+  .schip {
+    font-size: 12px; border-radius: 999px; padding: 9px 12px; border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02); color: var(--foreground-soft); cursor: pointer; transition: all var(--transition);
+  }
+  .schip:hover { border-color: rgba(255,107,0,0.45); color: var(--foreground); background: rgba(255,107,0,0.05); }
+  .composer { display: flex; gap: 10px; margin-top: 14px; }
+  .composer input { flex: 1; }
+  .foot { text-align: center; color: var(--foreground-soft); font-size: 12px; margin-top: 28px; }
+
+  @media (max-width: 980px) {
+    .submit-hero { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .tabs { width: 100%; justify-content: space-between; }
+    .tab { flex: 1; min-width: 0; }
+  }
+
+  @media (max-width: 640px) {
+    .shell { padding: 18px 14px 40px; }
+    header.top {
+      padding: 14px 14px; border-radius: 18px; gap: 10px;
+    }
+    .titles p { display: none; }
+    .status-wrap { gap: 6px; }
+    .logo { width: 38px; height: 38px; }
+    .status { font-size: 11px; padding: 8px 10px; }
+    .theme-switch { padding: 7px 10px; }
+    .tabs { gap: 4px; padding: 5px; }
+    .tab { font-size: 11px; padding: 9px 10px; }
+    .card { padding: 18px; border-radius: 20px; }
+    .hero-copy h2 { font-size: 2.2rem; }
+    .stats { grid-template-columns: 1fr; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar input, .sel { max-width: none; width: 100%; }
+    .composer { flex-direction: column; }
+    .btn { width: 100%; }
+    .msg { max-width: 92%; }
+    .suggest { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+    .schip { white-space: nowrap; }
+    .table-wrap { overflow-x: auto; }
+    table { min-width: 720px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <div class="shell">
+    <header class="top">
+      <div class="logo">A</div>
+      <div class="titles">
+        <h1>Student Grievance Portal</h1>
+        <p>Aditya University · AI-powered intake, tracking &amp; resolution</p>
+      </div>
+      <div class="status-wrap">
+        <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Connecting…</span></div>
+        <button class="theme-switch" id="themeSwitch" type="button" aria-label="Toggle light and dark theme">
+          <span class="icon">☀</span>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Main navigation">
+      <button class="tab active" data-view="submit">Submit</button>
+      <button class="tab" data-view="dashboard">Dashboard</button>
+      <button class="tab" data-view="agent">AI Agent</button>
+      <button class="tab" data-view="admin">🛠️ Admin</button>
+    </nav>
+
+    <!-- SUBMIT -->
+    <section class="view active" id="view-submit">
+      <div class="submit-hero">
+        <div class="hero-copy">
+          <div class="eyebrow">Student support journey</div>
+          <h2>Let’s get this sorted.</h2>
+          <p>Share what happened, where it happened, and how it is affecting your day-to-day campus life. The system will understand the issue, route it accurately, and keep the right team in the loop.</p>
+        </div>
+        <div class="journey" aria-label="Issue resolution process overview">
+          <div class="journey-step"><span class="step-index">1</span><span><strong>Submitted</strong> by student</span></div>
+          <div class="journey-step"><span class="step-index">2</span><span><strong>Understood</strong> by the AI</span></div>
+          <div class="journey-step"><span class="step-index">3</span><span><strong>Routed</strong> to the right team</span></div>
+          <div class="journey-step"><span class="step-index">4</span><span><strong>Tracked</strong> until resolution</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Tell us what’s wrong</h2>
+        <p class="sub">A clear description helps the campus support system understand the issue and route it with the right urgency.</p>
+        <div class="field">
+          <label for="s_name">Your name</label>
+          <input id="s_name" placeholder="e.g. Priya Sharma" />
+        </div>
+        <div class="field">
+          <label for="s_desc">Grievance details</label>
+          <textarea id="s_desc" placeholder="Tell us what happened, where it happened, and how it is affecting you..."></textarea>
+          <div class="meta-row"><span class="char-note">AI is ready to understand this context.</span><span class="char-note" id="charCount">0 characters</span></div>
+        </div>
+        <div class="field">
+          <label for="s_affected">Approx. students affected</label>
+          <input id="s_affected" type="number" min="1" value="1" />
+        </div>
+        <button class="btn" id="submitBtn">Submit Grievance</button>
+
+        <div class="result-card" id="submitResult">
+          <div class="rid" id="r_id"></div>
+          <div class="chips" id="r_chips"></div>
+          <div class="reason" id="r_reason"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section class="view" id="view-dashboard">
+      <div class="stats" id="stats"></div>
+      <div class="card">
+        <h2>Good morning.</h2>
+        <p class="sub">Here’s what’s happening across the student concern ecosystem today.</p>
+        <div class="toolbar">
+          <input id="searchBox" placeholder="Search grievances, departments or students..." />
+          <select class="sel" id="filterSev"><option value="">All severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select>
+          <select class="sel" id="filterStatus"><option value="">All statuses</option><option>Open</option><option>In Progress</option><option>Resolved</option></select>
+          <button class="btn" id="refreshBtn" style="padding:12px 18px;">Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Student</th><th>Category</th><th>Department</th><th>Severity</th><th>Priority</th><th>Status</th><th>Affected</th><th>Created</th></tr></thead>
+            <tbody id="tableBody"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px;">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENT -->
+    <section class="view" id="view-agent">
+      <div class="card">
+        <h2>AI Grievance Agent</h2>
+        <p class="sub">Ask anything about current grievances, severity patterns, department workload, and operational pressure across the campus.</p>
+        <div class="suggest" id="suggest">
+          <div class="schip">Which department needs attention now?</div>
+          <div class="schip">What issues are increasing this week?</div>
+          <div class="schip">Show critical grievances</div>
+          <div class="schip">What is the most common complaint type?</div>
+        </div>
+        <div class="chat">
+          <div class="messages" id="messages">
+            <div class="msg bot">The grievance intelligence layer is live. Ask about open cases, trends, severity, or the departments that need immediate attention.</div>
+          </div>
+          <div class="composer">
+            <input id="chatInput" placeholder="Ask the grievance intelligence..." />
+            <button class="btn" id="sendBtn">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section class="view" id="view-admin">
+      <div class="card">
+        <h2>Admin Resolution Panel</h2>
+        <p class="sub">Resolve a reported issue, update its status, and leave a dated, explainable note so the lifecycle is fully traceable.</p>
+
+        <div class="field">
+          <label for="adminGrievanceId">Grievance ID</label>
+          <input id="adminGrievanceId" placeholder="e.g. GRV-1001" />
+        </div>
+
+        <div class="field">
+          <label for="adminStatus">New status</label>
+          <select class="sel" id="adminStatus">
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="adminUpdatedBy">Updated by</label>
+          <input id="adminUpdatedBy" placeholder="e.g. Hostel Warden" />
+        </div>
+
+        <div class="field">
+          <label for="adminResolutionNote">Resolution note</label>
+          <textarea id="adminResolutionNote" placeholder="Enter the resolution summary, steps taken, and final outcome..."></textarea>
+        </div>
+
+        <button class="btn" id="adminApplyBtn">Apply Update</button>
+
+        <div class="result-card" id="adminResult">
+          <div class="rid" id="adminResultText">Update status</div>
+          <div class="reason" id="adminResultReason"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="foot">Built for VEDA-2K26 · Student Grievance Management Agent · n8n + Gemini</div>
+  </div>
+
+<script>
+  // ===== CONFIG =====
+  const BASE = "https://neverjunior.app.n8n.cloud/webhook";
+  const EP_SUBMIT = BASE + "/grievance-submit";
+  const EP_LIST   = BASE + "/grievance-list";
+  const EP_AGENT  = BASE + "/grievance-api";
+  const EP_UPDATE = BASE + "/grievance-update";
+
+  const ADMIN_PASSWORD = 'admin@123';
+  let adminUnlocked = false;
+
+  function activateTab(targetView) {
+    const tabButtons = document.querySelectorAll('.tab');
+    tabButtons.forEach(t => t.classList.toggle('active', t.dataset.view === targetView));
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + targetView));
+    if (targetView === 'dashboard') loadList();
+  }
+
+  function requireAdminAccess() {
+    const entered = window.prompt('Enter admin password');
+    if (entered === ADMIN_PASSWORD) {
+      adminUnlocked = true;
+      activateTab('admin');
+      return true;
+    }
+    alert('Access denied. Admin password is required.');
+    return false;
+  }
+
+  // ===== Theme =====
+  const themeSwitch = document.getElementById('themeSwitch');
+  const themeLabel = document.getElementById('themeLabel');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const savedTheme = localStorage.getItem('grievance_theme') || (prefersDark ? 'dark' : 'light');
+
+  function applyTheme(theme) {
+    const isLight = theme === 'light';
+    document.body.classList.toggle('light-theme', isLight);
+    themeLabel.textContent = isLight ? 'Dark' : 'Light';
+    themeSwitch.querySelector('.icon').textContent = isLight ? '☾' : '☀';
+    localStorage.setItem('grievance_theme', theme);
+  }
+
+  applyTheme(savedTheme);
+
+  themeSwitch.addEventListener('click', () => {
+    const next = document.body.classList.contains('light-theme') ? 'dark' : 'light';
+    applyTheme(next);
+  });
+
+  // ===== Tabs =====
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    const target = t.dataset.view;
+    if (target === 'admin') {
+      if (!adminUnlocked) {
+        requireAdminAccess();
+        return;
+      }
+    }
+    activateTab(target);
+  }));
+
+  const gripeInput = document.getElementById('s_desc');
+  const charCount = document.getElementById('charCount');
+  gripeInput.addEventListener('input', () => {
+    const count = gripeInput.value.length;
+    charCount.textContent = count + ' characters';
+    if (count > 0) {
+      charCount.style.color = '#dfe7ff';
+    } else {
+      charCount.style.color = 'var(--muted)';
+    }
+  });
+
+  // ===== Status =====
+  const dot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  async function ping() {
+    try {
+      const r = await fetch(EP_LIST, { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+      if (r.ok) { dot.classList.add('live'); statusText.textContent = 'Live'; return; }
+      throw new Error();
+    } catch { statusText.textContent = 'Offline'; }
+  }
+  ping();
+
+  // ===== Submit =====
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.addEventListener('click', async () => {
+    const name = document.getElementById('s_name').value.trim();
+    const desc = document.getElementById('s_desc').value.trim();
+    const affected = parseInt(document.getElementById('s_affected').value) || 1;
+    if (!name || !desc) { alert('Please enter your name and describe the grievance.'); return; }
+    submitBtn.disabled = true; submitBtn.textContent = 'Processing…';
+    try {
+      const r = await fetch(EP_SUBMIT, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ student_name: name, description: desc, affected_students: affected })
+      });
+      const data = await r.json();
+      const g = data.grievance || data;
+      const box = document.getElementById('submitResult');
+      document.getElementById('r_id').textContent = '✓ Grievance received — ' + (g.grievance_id || g.id || 'Recorded');
+      document.getElementById('r_chips').innerHTML =
+        `<span class="chip">Category: <b>${g.category || '—'}</b></span>
+         <span class="chip">Severity: <b>${g.severity || '—'}</b></span>
+         <span class="chip">Priority: <b>${g.priority || '—'}</b></span>
+         <span class="chip">Dept: <b>${g.department || '—'}</b></span>`;
+      document.getElementById('r_reason').textContent = (g.flagged_reason || '').replace(/^AI intake:\s*/,'') || data.message || 'Your concern has been successfully registered.';
+      box.classList.add('show');
+      document.getElementById('s_name').value = ''; document.getElementById('s_desc').value = ''; document.getElementById('s_affected').value = '1'; charCount.textContent = '0 characters';
+    } catch (e) {
+      alert('Submission failed. Please try again.');
+    } finally { submitBtn.disabled = false; submitBtn.textContent = 'Submit Grievance'; }
+  });
+
+  // ===== Dashboard =====
+  let allRows = [];
+  async function loadList() {
+    const body = document.getElementById('tableBody');
+    body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px;">Loading…</td></tr>';
+    try {
+      const r = await fetch(EP_LIST, { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+      const data = await r.json();
+      allRows = data.items || data.rows || data.grievances || (Array.isArray(data) ? data : []);
+      renderStats(); renderTable();
+    } catch (e) {
+      body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--crit);padding:28px;">Failed to load data.</td></tr>';
+    }
+  }
+  function renderStats() {
+    const total = allRows.length;
+    const open = allRows.filter(r => (r.status||'').toLowerCase() === 'open').length;
+    const prog = allRows.filter(r => (r.status||'').toLowerCase() === 'in progress').length;
+    const resolved = allRows.filter(r => (r.status||'').toLowerCase() === 'resolved').length;
+    const crit = allRows.filter(r => (r.severity||'').toLowerCase() === 'critical').length;
+    const s = document.getElementById('stats');
+    s.innerHTML = [
+      ['Total', total, 'var(--text)'], ['Open', open, 'var(--crit)'],
+      ['In Progress', prog, 'var(--warn)'], ['Resolved', resolved, 'var(--ok)'],
+      ['Critical', crit, 'var(--crit)']
+    ].map(([l,n,c]) => `<div class="stat"><div class="n" style="color:${c}">${n}</div><div class="l">${l}</div></div>`).join('');
+  }
+  function renderTable() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    const sev = document.getElementById('filterSev').value;
+    const st = document.getElementById('filterStatus').value;
+    const rows = allRows.filter(r => {
+      const hay = `${r.student_name} ${r.description} ${r.department} ${r.category} ${r.grievance_id}`.toLowerCase();
+      return (!q || hay.includes(q)) && (!sev || r.severity === sev) && (!st || r.status === st);
+    });
+    const body = document.getElementById('tableBody');
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px;">No matching grievances.</td></tr>'; return; }
+    body.innerHTML = rows.map(r => {
+      const created = r.created_date ? String(r.created_date).slice(0,10) : '—';
+      const stClass = 'st-' + String(r.status||'').replace(/\s/g,'');
+      return `<tr>
+        <td>${r.grievance_id || '—'}</td>
+        <td>${r.student_name || '—'}</td>
+        <td>${r.category || '—'}</td>
+        <td>${r.department || '—'}</td>
+        <td><span class="badge sev-${r.severity}">${r.severity || '—'}</span></td>
+        <td>${r.priority || '—'}</td>
+        <td class="${stClass}">${r.status || '—'}</td>
+        <td>${r.affected_students ?? '—'}</td>
+        <td>${created}</td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('searchBox').addEventListener('input', renderTable);
+  document.getElementById('filterSev').addEventListener('change', renderTable);
+  document.getElementById('filterStatus').addEventListener('change', renderTable);
+  document.getElementById('refreshBtn').addEventListener('click', loadList);
+
+  // ===== Admin update =====
+  const adminApplyBtn = document.getElementById('adminApplyBtn');
+  const adminResult = document.getElementById('adminResult');
+  const adminResultText = document.getElementById('adminResultText');
+  const adminResultReason = document.getElementById('adminResultReason');
+
+  adminApplyBtn.addEventListener('click', async () => {
+    const grievanceId = document.getElementById('adminGrievanceId').value.trim();
+    const status = document.getElementById('adminStatus').value;
+    const updatedBy = document.getElementById('adminUpdatedBy').value.trim();
+    const resolutionNote = document.getElementById('adminResolutionNote').value.trim();
+
+    if (!grievanceId || !updatedBy || !resolutionNote) {
+      alert('Please enter a grievance ID, updated-by name, and a resolution note.');
+      return;
+    }
+
+    adminApplyBtn.disabled = true;
+    adminApplyBtn.textContent = 'Updating…';
+
+    try {
+      const response = await fetch(EP_UPDATE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          grievance_id: grievanceId,
+          status,
+          resolution_note: resolutionNote,
+          updated_by: updatedBy
+        })
+      });
+
+      const payload = await response.json();
+      const message = payload.message || payload.status || 'Grievance update submitted.';
+      adminResultText.textContent = '✓ Update applied — ' + grievanceId;
+      adminResultReason.textContent = message;
+      adminResult.classList.add('show');
+    } catch (error) {
+      adminResultText.textContent = '⚠ Update failed';
+      adminResultReason.textContent = 'The admin update endpoint could not be reached. Please verify the live webhook is published.';
+      adminResult.classList.add('show');
+    } finally {
+      adminApplyBtn.disabled = false;
+      adminApplyBtn.textContent = 'Apply Update';
+    }
+  });
+
+  // ===== Agent chat =====
+  const messages = document.getElementById('messages');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  let sessionId = localStorage.getItem('grv_session') || ('web-' + Math.random().toString(36).slice(2));
+  localStorage.setItem('grv_session', sessionId);
+
+  function addMsg(text, who) {
+    const d = document.createElement('div');
+    d.className = 'msg ' + who; d.textContent = text;
+    messages.appendChild(d); messages.scrollTop = messages.scrollHeight;
+  }
+  function showTyping() {
+    const t = document.createElement('div');
+    t.className = 'typing'; t.id = 'typing';
+    t.innerHTML = '<span></span><span></span><span></span>';
+    messages.appendChild(t); messages.scrollTop = messages.scrollHeight;
+  }
+  function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+  async function ask(q) {
+    if (!q.trim()) return;
+    addMsg(q, 'user'); chatInput.value = ''; showTyping(); sendBtn.disabled = true;
+    try {
+      const r = await fetch(EP_AGENT, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ question: q, sessionId })
+      });
+      const data = await r.json();
+      hideTyping();
+      addMsg(data.answer || data.output || 'No response.', 'bot');
+    } catch (e) {
+      hideTyping(); addMsg('Sorry, I could not reach the agent. Please try again.', 'bot');
+    } finally { sendBtn.disabled = false; }
+  }
+  sendBtn.addEventListener('click', () => ask(chatInput.value));
+  chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') ask(chatInput.value); });
+  document.querySelectorAll('#suggest .schip').forEach(c => c.addEventListener('click', () => ask(c.textContent)));
+</script>
+</body>
+</html>
